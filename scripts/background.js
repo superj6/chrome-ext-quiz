@@ -1,24 +1,31 @@
+const defaultSettings = {
+  stateOnOff: false,
+  quizletLinks: [],
+  quizInterval: {min: 1, max: 2},
+  quizLen: 5
+};
+
 function getRandomInt(min, max){
   return min + Math.floor(Math.random() * (max - min + 1));
 }
 
-function setQuizInterval(interval){
-  chrome.storage.local.set({
-    quizInterval: interval
-  });
+async function getSettings(keys){
+  const defaults = Object.keys(defaultSettings)
+    .filter(key => keys.includes(key))
+    .reduce((obj, key) => {
+      obj[key] = defaultSettings[key];
+      return obj;
+    }, {});
+  return await chrome.storage.local.get(defaults);
 }
 
-async function getQuizInterval(){
-  let interval = await chrome.storage.local.get('quizInterval').quizInterval;
-  if(typeof interval === 'undefined'){
-    interval = {min: 1, max: 2};
-    setQuizInterval(interval);
-  }
-  return interval;
+async function getSettingsValue(key){
+  obj = await getSettings([key]);
+  return obj[key];
 }
 
 async function setQuizTimer(){
-  let interval = await getQuizInterval();
+  let interval = await getSettingsValue('quizInterval');
   let delay = getRandomInt(interval.min, interval.max);
 
   console.log(`setQuizTimer delay: ${delay}`);
@@ -40,7 +47,7 @@ function startQuiz(){
 }
 
 chrome.alarms.onAlarm.addListener((alarm) => {
-  console.log(`Alarm: ${alarm.name}`)
+  console.log(`Alarm: ${alarm.name}`);
   switch(alarm.name){
     case 'popquiz':
       startQuiz();
@@ -49,13 +56,19 @@ chrome.alarms.onAlarm.addListener((alarm) => {
 });
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  console.log(`Message: ${message.greeting}`)
+  console.log(`Message: ${message.greeting}`);
   switch(message.greeting){
-    case 'quizon':
+    case 'quizOn':
       setQuizTimer();
       break;
-    case 'quizoff':
+    case 'quizOff':
       removeQuizTimer();
       break;
+    case 'getQuizSettings':
+      chrome.storage.local.get(defaultSettings).then((settings) => {
+        sendResponse(settings);
+      });
+      break;
   }
+  return true;
 });

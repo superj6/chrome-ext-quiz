@@ -4,11 +4,19 @@ const inputLink = document.getElementById('input-link');
 const buttonLinkAdd = document.getElementById('button-link-add');
 const listLinks = document.getElementById('list-links');
 
+const spanRateMin = document.getElementById('span-rate-min');
+const spanRateMax = document.getElementById('span-rate-max');
 const inputRateMin = document.getElementById('input-rate-min');
 const inputRatemax = document.getElementById('input-rate-max');
 const buttonRateChange = document.getElementById('button-rate-change');
 
-let quizletLinks = [];
+const spanQuizLen = document.getElementById('span-quizlen');
+
+let settings;
+
+function drawStateOnOff(state){
+  inputOnOff.checked = state;
+}
 
 function drawLinks(quizletLinks){
   if(!quizletLinks.length){
@@ -35,25 +43,46 @@ function drawLinks(quizletLinks){
 
 function addLink(url){
   quizletLinks.push(url);
-  drawLinks(quizletLinks);
+  drawLinks(settings.quizletLinks);
 }
 
 function removeLink(index){
   quizletLinks.splice(index, 1);
-  drawLinks(quizletLinks);
+  drawLinks(settings.quizletLinks);
 }
 
-function changeRateInterval(min, max){
-  
+function drawInterval(interval){
+  spanRateMin.textContent = interval.min;
+  spanRateMax.textContent = interval.max;
 }
 
-drawLinks(quizletLinks);
+function changeRateInterval(interval){
+  settings.interval = interval;
+}
+
+function drawLen(quizLen){
+  spanQuizLen.textContent = quizLen;
+}
+
+function drawSettings(settings){
+  drawStateOnOff(settings.stateOnOff);
+  drawLinks(settings.quizletLinks);
+  drawInterval(settings.quizInterval);
+  drawLen(settings.quizLen);
+}
+
+async function init(){
+  settings = await chrome.runtime.sendMessage({ greeting: 'getQuizSettings'});  
+  drawSettings(settings);
+}
+
+init();
 
 inputOnOff.addEventListener('change', (e) => {
   if(e.currentTarget.checked){
-    chrome.runtime.sendMessage({ greeting: 'quizon'}); 
+    chrome.runtime.sendMessage({ greeting: 'quizOn'}); 
   }else{
-    chrome.runtime.sendMessage({ greeting: 'quizoff'});
+    chrome.runtime.sendMessage({ greeting: 'quizOff'});
   }
 });
 
@@ -66,6 +95,6 @@ buttonLinkAdd.addEventListener('click', () => {
 
 buttonRateChange.addEventListener('click', () => {
   if(inputRateMax.value && inputRateMax.value){
-    changeRateInterval(inputRateMin.value, inputRateMax.value);
+    changeRateInterval({min: inputRateMin.value, max: inputRateMax.value});
   }
 });
