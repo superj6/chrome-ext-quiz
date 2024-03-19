@@ -1,3 +1,5 @@
+const inputOnOff = document.getElementById('input-on-off');
+
 const inputLink = document.getElementById('input-link');
 const buttonLinkAdd = document.getElementById('button-link-add');
 const listLinks = document.getElementById('list-links');
@@ -46,6 +48,14 @@ function changeRateInterval(min, max){
 }
 
 drawLinks(quizletLinks);
+
+inputOnOff.addEventListener('change', (e) => {
+  if(e.currentTarget.checked){
+    chrome.runtime.sendMessage({ greeting: 'quizon'}); 
+  }else{
+    chrome.runtime.sendMessage({ greeting: 'quizoff'});
+  }
+});
 
 buttonLinkAdd.addEventListener('click', () => {
   if(inputLink.value){

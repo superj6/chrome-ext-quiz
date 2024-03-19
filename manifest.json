@@ -9,6 +9,6 @@
   "background":{
     "service_worker": "/scripts/background.js"
   },
-  "permissions": ["activeTab"]
+  "permissions": ["activeTab", "alarms"]
 }
 

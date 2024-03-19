@@ -6,14 +6,16 @@
 </head>
 <body>
   <h1>Quiz Popper</h1> 
-  <p>Give yourself miniquizzes at random intervals as you search the web!</p>
+  <p>Give yourself popup miniquizzes at random intervals as you search the web!</p>
   <p>Choose questions sourced by quizlets!</p>
+  <input type="checkbox" id="input-on-off" />
   <section>
     <h2>Add/Remove Quizlets</h2>
     <div>
+      <p id="error-link"></p>
       <div>
-        <label>Quizlet Link:</label>
-        <input type="url" id="input-link"></input>
+        <label for="input-link">Quizlet Link:</label>
+        <input type="url" id="input-link" />
       </div>
       <button id="button-link-add">add</button>
     </div>
@@ -23,16 +25,30 @@
   <section>
     <h2>Quiz Popup Rate</h2>
     <p>Set interval range for how often quizzes popup in minutes.</p>
+    <p>Current: Min-<span id="span-rate-min">15</span> Max-<span id="span-rate-max">30</span></p>
     <div>
+      <p id="error-rate"></p>
       <div>
-        <label>Min</label>
-        <input type="number" id="input-rate-min"></input>
+        <label for="input-rate-min">Min</label>
+        <input type="number" id="input-rate-min" />
       </div>
       <div>
-        <label>Max</label>
-        <input type="number"i id="input-rate-max"></input>
+        <label for="input-rate-max">Max</label>
+        <input type="number" id="input-rate-max" />
       </div>
       <button id="button-rate-change">Change</button>
+  </section>
+  <section>
+    <h2>Quiz Length</h2>
+    <p>Current: #-<span id="span-quizlen">5</span></p>
+    <div>
+      <p id="error-quizlen"></p>
+      <div>
+	<label for="input-quizlen"># questions/quiz</label>
+	<input type=numer" id="input-quizlen"/>
+      </div>
+      <button id="button-quizlen-change">Change</button>
+    </div>
   </section>
   <script src="/scripts/index.js"></script>
 </body>
