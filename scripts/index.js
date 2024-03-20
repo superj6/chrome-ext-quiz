@@ -7,18 +7,42 @@ const listLinks = document.getElementById('list-links');
 const spanRateMin = document.getElementById('span-rate-min');
 const spanRateMax = document.getElementById('span-rate-max');
 const inputRateMin = document.getElementById('input-rate-min');
-const inputRatemax = document.getElementById('input-rate-max');
+const inputRateMax = document.getElementById('input-rate-max');
 const buttonRateChange = document.getElementById('button-rate-change');
 
 const spanQuizLen = document.getElementById('span-quizlen');
+const inputQuizLen = document.getElementById('input-quizlen');
+const buttonQuizLenChange = document.getElementById('button-quizlen-change');
 
-let settings;
+let settings = {
+  stateOnOff: undefined,
+  quizletLinks: undefined,
+  quizInterval: undefined,
+  quizLen: undefined
+};
+
+function setLocalSettings(settings, updateAlarm){
+  chrome.runtime.sendMessage({
+    greeting: 'setQuizSettings',
+    settings: settings,
+    updateAlarm: updateAlarm
+  });
+}
+
+async function getLocalSettings(){
+  return await chrome.runtime.sendMessage({ greeting: 'getQuizSettings'});
+}
 
 function drawStateOnOff(state){
   inputOnOff.checked = state;
 }
 
-function drawLinks(quizletLinks){
+function changeStateOnOff(state){
+  settings.stateOnOff = state;
+  setLocalSettings(settings, true);
+}
+
+function drawQuizletLinks(quizletLinks){
   if(!quizletLinks.length){
     listLinks.replaceChildren('It does not seem you have any added...');
     return;
@@ -30,7 +54,7 @@ function drawLinks(quizletLinks){
     let button = document.createElement('button');
     button.innerHTML = '&#10006;';
     button.style.marginRight = '0.25rem';
-    button.addEventListener('click', () => { removeLink(index);});
+    button.addEventListener('click', () => { removeQuizletLink(index);});
 
     let li = document.createElement('li');
     li.replaceChildren(button, url);
@@ -41,60 +65,84 @@ function drawLinks(quizletLinks){
   listLinks.replaceChildren(...listLinksChildren);
 }
 
-function addLink(url){
-  quizletLinks.push(url);
-  drawLinks(settings.quizletLinks);
+function addQuizletLink(url){
+  if(false){
+
+  }
+  settings.quizletLinks.push(url);
+  drawQuizletLinks(settings.quizletLinks);
+  setLocalSettings(settings, false);
 }
 
-function removeLink(index){
-  quizletLinks.splice(index, 1);
-  drawLinks(settings.quizletLinks);
+function removeQuizletLink(index){
+  settings.quizletLinks.splice(index, 1);
+  drawQuizletLinks(settings.quizletLinks);
+  setLocalSettings(settings, false);
 }
 
-function drawInterval(interval){
+function drawRateInterval(interval){
   spanRateMin.textContent = interval.min;
   spanRateMax.textContent = interval.max;
 }
 
 function changeRateInterval(interval){
-  settings.interval = interval;
+  if(interval.min > interval.max){
+    return;
+  }
+  settings.quizInterval = interval;
+  drawRateInterval(settings.quizInterval);
+  setLocalSettings(settings, true);
 }
 
-function drawLen(quizLen){
+function drawQuizLen(quizLen){
   spanQuizLen.textContent = quizLen;
+}
+
+function changeQuizLen(quizLen){
+  settings.quizLen = quizLen;
+  drawQuizLen(settings.quizLen);
+  setLocalSettings(settings, false);
 }
 
 function drawSettings(settings){
   drawStateOnOff(settings.stateOnOff);
-  drawLinks(settings.quizletLinks);
-  drawInterval(settings.quizInterval);
-  drawLen(settings.quizLen);
+  drawQuizletLinks(settings.quizletLinks);
+  drawRateInterval(settings.quizInterval);
+  drawQuizLen(settings.quizLen);
 }
 
 async function init(){
-  settings = await chrome.runtime.sendMessage({ greeting: 'getQuizSettings'});  
+  settings = await getLocalSettings();  
   drawSettings(settings);
 }
 
 init();
 
 inputOnOff.addEventListener('change', (e) => {
-  if(e.currentTarget.checked){
-    chrome.runtime.sendMessage({ greeting: 'quizOn'}); 
-  }else{
-    chrome.runtime.sendMessage({ greeting: 'quizOff'});
-  }
+  changeStateOnOff(e.currentTarget.checked);
 });
 
 buttonLinkAdd.addEventListener('click', () => {
   if(inputLink.value){
-    addLink(inputLink.value);
+    addQuizletLink(inputLink.value);
     inputLink.value = '';
   }
 });
 
 buttonRateChange.addEventListener('click', () => {
-  if(inputRateMax.value && inputRateMax.value){
-    changeRateInterval({min: inputRateMin.value, max: inputRateMax.value});
+  if(inputRateMin.value && inputRateMax.value){
+    changeRateInterval({
+      min: parseInt(inputRateMin.value), 
+      max: parseInt(inputRateMax.value)
+    });
+    inputRateMin.value = '';
+    inputRateMax.value = '';
+  }
+});
+
+buttonQuizLenChange.addEventListener('click', () => {
+  if(inputQuizLen.value){
+    changeQuizLen(parseInt(inputQuizLen.value));
+    inputQuizLen.value = '';
   }
 });
