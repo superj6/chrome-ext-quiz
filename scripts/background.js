@@ -59,8 +59,21 @@ async function setQuizAlarm(){
 function startQuiz(){
   chrome.windows.create({
     focused: true,
-    url: ["/views/index.html"],
+    url: ["/views/quiz.html"],
   });
+}
+
+function genQuestion(quizletLinks){
+  
+}
+
+function getQuizQuestionList(){
+  const settings = await getSettings(['quizLen', 'quizletLinks']);
+
+  let questionList = [];
+  for(let i = 0; i < settings.quizLen; i++) questionList.push(genQuestion());
+
+  return questionList;
 }
 
 chrome.alarms.onAlarm.addListener((alarm) => {
@@ -82,6 +95,10 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         sendResponse(settings);
       });
       break;
+    case 'getQuizQuestionList':
+      getQuizQuestionList().then((questionList) => {
+        sendResponse(questionList);
+      });
   }
   return true;
 });
