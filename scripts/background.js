@@ -46,9 +46,6 @@ function removeQuizAlarm(){
 async function setQuizAlarm(){
   await removeQuizAlarm();
 
-  startQuiz();
-  return;
-
   let interval = await getSettingsValue('quizInterval');
   let delay = getRandomInt(interval.min, interval.max);
 
