@@ -77,7 +77,7 @@ function addQuizletLink(url){
 
   setTimeout(() => {
     iframeQuizletWrapper.classList.add('iframe-quizlet-wrapper--hidden');
-  }, 20000);
+  }, 10000);
 }
 
 function removeQuizletLink(index){

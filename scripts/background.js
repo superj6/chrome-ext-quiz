@@ -102,13 +102,13 @@ function getRandomIndexes(len, indSz){
 }
 
 function genQuestion(activeQlist){
-  let question = {statement: 'Statement?', choices: {a: 'april', b: 'billy', c: 'cat', d: 'dan'}, correct: 'a'};
+  let question = {statement: 'Statement?', choices: {A: 'april', B: 'billy', C: 'cat', D: 'dan'}, correct: 'a'};
   
   let qaIndexes = getRandomIndexes(4, activeQlist.length);
   let choiceIndexes = getRandomIndexes(4, 4);
 
   let qas = qaIndexes.map((i) => activeQlist[i]);
-  let choiceMap = choiceIndexes.map((i) => ['a', 'b', 'c', 'd'][i]);
+  let choiceMap = choiceIndexes.map((i) => ['A', 'B', 'C', 'D'][i]);
 
   if(qas.length > 0){
     question.statement = qas[0].question;

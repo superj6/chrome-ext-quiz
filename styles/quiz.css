@@ -1,0 +1,13 @@
+body{
+  font-size: 1.25rem;
+  background-color: lightblue;
+}
+
+.hidden{
+  display: none;
+}
+
+#multi-choice-question > ul{
+  list-style-type: none;
+  padding: 0;
+}

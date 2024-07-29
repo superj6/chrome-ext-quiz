@@ -2,15 +2,23 @@
 <html>
 <head>
   <meta charset="UTF-8" />
-  <link rel="stylesheet" href="/styles/index.css" />
+  <link rel="stylesheet" href="/styles/quiz.css" />
 </head>
 <body>
   <h1>Pop Quiz!</h1>
-  <div>
-    <h2>Question <span id="question-num">...</span></h2>
-    <p id="question-statement"></p>
-    <ul id="question-choice-list">
-    </ul>
+  <div id="start-display">
+    <p>Complete the quiz before going back to browsing. There are <span>...</span> questions.</p>
+    <button>Start!</button>
+  </div>
+  <div id="end-display" class="hidden">
+    <p>You have finished the quiz! Close the window to go back to browsing.</p>
+  </div>
+  <div id="multi-choice-question" class="hidden">
+    <h2>Question <span>...</span></h2>
+    <p></p>
+    <ul></ul>
+    <button></button>      
+    <output></output>
   </div>
   <script src="/scripts/quiz.js"></script>
 </body>
