@@ -85,6 +85,8 @@ function startQuiz(){
     focused: true,
     url: ["/views/quiz.html"],
   });
+
+  setQuizAlarm();
 }
 
 function getRandomIndexes(len, indSz){
