@@ -3,6 +3,8 @@ const inputOnOff = document.getElementById('input-on-off');
 const inputLink = document.getElementById('input-link');
 const buttonLinkAdd = document.getElementById('button-link-add');
 const listLinks = document.getElementById('list-links');
+const iframeQuizlet = document.getElementById('iframe-quizlet');
+const iframeQuizletWrapper = document.getElementById('iframe-quizlet-wrapper');
 
 const spanRateMin = document.getElementById('span-rate-min');
 const spanRateMax = document.getElementById('span-rate-max');
@@ -30,7 +32,7 @@ function setLocalSettings(settings, updateAlarm){
 }
 
 async function getLocalSettings(){
-  return await chrome.runtime.sendMessage({ greeting: 'getQuizSettings'});
+  return chrome.runtime.sendMessage({ greeting: 'getQuizSettings'});
 }
 
 function drawStateOnOff(state){
@@ -66,12 +68,16 @@ function drawQuizletLinks(quizletLinks){
 }
 
 function addQuizletLink(url){
-  if(false){
+  iframeQuizlet.src = url;
+  iframeQuizletWrapper.classList.remove('iframe-quizlet-wrapper--hidden');
 
-  }
   settings.quizletLinks.push(url);
   drawQuizletLinks(settings.quizletLinks);
   setLocalSettings(settings, false);
+
+  setTimeout(() => {
+    iframeQuizletWrapper.classList.add('iframe-quizlet-wrapper--hidden');
+  }, 20000);
 }
 
 function removeQuizletLink(index){

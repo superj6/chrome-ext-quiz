@@ -46,6 +46,9 @@ function removeQuizAlarm(){
 async function setQuizAlarm(){
   await removeQuizAlarm();
 
+  startQuiz();
+  return;
+
   let interval = await getSettingsValue('quizInterval');
   let delay = getRandomInt(interval.min, interval.max);
 
@@ -56,6 +59,30 @@ async function setQuizAlarm(){
   });
 }
 
+async function getQuizletQlists(){
+  let res = await chrome.storage.local.get({quizletQlists: {}});
+  return res.quizletQlists;
+}
+
+function setQuizletQlists(qlists){
+  chrome.storage.local.set({quizletQlists: qlists}); 
+}
+
+function saveQuizletQA(url, qlist){
+  getQuizletQlists().then((qlists) => {
+    qlists[url] = qlist;
+    setQuizletQlists(qlists);
+  });
+}
+
+async function getActiveQlist(){
+  let links = await getSettingsValue('quizletLinks');
+  let qlists = await getQuizletQlists();
+  
+  let activeQlist = [].concat(...links.map((link) => qlists[link]));
+  return activeQlist;
+}
+
 function startQuiz(){
   chrome.windows.create({
     focused: true,
@@ -63,15 +90,44 @@ function startQuiz(){
   });
 }
 
-function genQuestion(quizletLinks){
-  
+function getRandomIndexes(len, indSz){
+  let indexes = [];
+  while(indexes.length < indSz && indexes.length < len){
+    let x = getRandomInt(0, indSz - 1);
+    if(indexes.includes(x)) continue;
+
+    indexes.push(x);
+  }
+  return indexes;
 }
 
-function getQuizQuestionList(){
-  const settings = await getSettings(['quizLen', 'quizletLinks']);
+function genQuestion(activeQlist){
+  let question = {statement: 'Statement?', choices: {a: 'april', b: 'billy', c: 'cat', d: 'dan'}, correct: 'a'};
+  
+  let qaIndexes = getRandomIndexes(4, activeQlist.length);
+  let choiceIndexes = getRandomIndexes(4, 4);
 
+  let qas = qaIndexes.map((i) => activeQlist[i]);
+  let choiceMap = choiceIndexes.map((i) => ['a', 'b', 'c', 'd'][i]);
+
+  if(qas.length > 0){
+    question.statement = qas[0].question;
+    question.correct = choiceMap[0];
+  }
+
+  qas.forEach((qa, i) => {
+    question.choices[choiceMap[i]] = qa.answer;
+  });
+
+  return question;
+}
+
+async function getQuizQuestionList(){
+  const quizLen = await getSettingsValue('quizLen');
+  const activeQlist = await getActiveQlist();
+  
   let questionList = [];
-  for(let i = 0; i < settings.quizLen; i++) questionList.push(genQuestion());
+  for(let i = 0; i < quizLen; i++) questionList.push(genQuestion(activeQlist));
 
   return questionList;
 }
@@ -96,9 +152,11 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       });
       break;
     case 'getQuizQuestionList':
-      getQuizQuestionList().then((questionList) => {
-        sendResponse(questionList);
-      });
+      getQuizQuestionList().then(sendResponse);
+      break;
+    case 'extractedQuizlet':
+      saveQuizletQA(message.url, message.qlist);
+      break;
   }
   return true;
 });

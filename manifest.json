@@ -6,6 +6,13 @@
   "action": {
     "default_popup": "/views/index.html"
   },
+  "content_scripts": [
+    {
+      "matches": ["https://*.quizlet.com/*"],
+      "js": ["/scripts/content-quizlet.js"],
+      "all_frames": true
+    }
+  ],
   "background":{
     "service_worker": "/scripts/background.js"
   },
