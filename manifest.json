@@ -3,6 +3,9 @@
   "name": "Quiz Popper",
   "description": "Randomly quiz yourself while working. Import questions from quizlet.",
   "version": "1.0",
+  "icons": {
+    "128": "/icons/main-icon.png"
+  },
   "action": {
     "default_popup": "/views/index.html"
   },
